@@ -7,7 +7,7 @@ Order vs. Chaos — The Cosmic Dance — “Order is chaos, wearing a suit.”
 
 ---
 
-THE COMIC DANCE
+THE COSMIC DANCE
 
 A Narrative of Order, Chaos, and the Birth of the Kairi
 
