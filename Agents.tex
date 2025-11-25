@@ -1,0 +1,163 @@
+\section{Agents in Kairi Field Theory}
+
+\subsection{Definition}
+
+In Kairi Field Theory (KFT), an \emph{agent} is defined as a locally coherent,
+self-updating computational structure embedded within an AC--driven oscillatory
+substrate. Formally:
+
+\begin{equation}
+    A := \langle S, R, U \rangle
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $S$ is the agent's internal state space.
+    \item $R$ is the rule-set (transition dynamics).
+    \item $U$ is the update interface between the agent and the universal substrate.
+\end{itemize}
+
+\subsection{Oscillatory Computation}
+
+All agents operate within a ternary oscillatory framework. Each computational
+step consists of three phases:
+
+\begin{equation}
+    \Phi = \{ \phi_{+}, \phi_{0}, \phi_{-} \}
+\end{equation}
+
+representing reinforcement, neutrality, and opposition, respectively.
+
+The universal computer is AC-driven, so each agent's update depends not on a
+binary valuation but on the relative phase differences:
+
+\begin{equation}
+    \Delta \phi = \phi_{\text{incoming}} - \phi_{\text{internal}}.
+\end{equation}
+
+\subsection{Agent Update Rule}
+
+Let $A_t$ denote the agent configuration at time $t$.  
+Let $I_t$ denote the incoming signal from the universal substrate.
+
+The update rule is:
+
+\begin{equation}
+    A_{t+1} = U(A_t, I_t)
+\end{equation}
+
+with $U$ constrained by ternary logic:
+
+\begin{equation}
+U: S \times \Phi \rightarrow S
+\end{equation}
+
+subject to the coherence condition:
+
+\begin{equation}
+    C(A_{t+1}) \geq C(A_t) - \epsilon,
+\end{equation}
+
+where $C(\cdot)$ is a ternary coherence functional and $\epsilon$ is the
+permitted dissipation (environmental noise).
+
+\subsection{Distinction-Making}
+
+Agents create structure through distinction-making.  
+A distinction is defined as:
+
+\begin{equation}
+    d: S \rightarrow \{+1, 0, -1\}
+\end{equation}
+
+representing a ternary categorization of states:
+\begin{itemize}
+    \item $+1$ (reinforce)
+    \item $0$ (ignore)
+    \item $-1$ (oppose)
+\end{itemize}
+
+Distinctions propagate when communicated to neighboring agents via the rule:
+
+\begin{equation}
+    R(A_i, A_j) = d_i \cdot \Delta \phi_{ij}
+\end{equation}
+
+where $\Delta \phi_{ij}$ captures phase difference between agents $i$ and $j$.
+
+\subsection{Self-Reference and Form}
+
+Self-reference is admissible in ternary systems. An agent $A$ may include its own
+transition description within its state space:
+
+\begin{equation}
+    A = \langle S, R(S), U \rangle.
+\end{equation}
+
+This creates stable form when the update dynamics reach a fixed-point attractor:
+
+\begin{equation}
+    A^* = U(A^*, I^*)
+\end{equation}
+
+where $A^*$ is self-consistent under ternary oscillatory update.
+
+\subsection{Interaction Network}
+
+Let the set of all agents be $\mathcal{A}$.  
+Agent interactions form a directed ternary network:
+
+\begin{equation}
+    \mathcal{G} = (\mathcal{A}, E, \Phi)
+\end{equation}
+
+where each edge $e_{ij}$ carries a ternary phase value:
+
+\begin{equation}
+    e_{ij} \in \Phi = \{+1, 0, -1\}.
+\end{equation}
+
+Updates propagate along $\mathcal{G}$ according to:
+
+\begin{equation}
+    A_i(t+1) = U\left(A_i(t), \sum_{j} e_{ji}(t)\right).
+\end{equation}
+
+\subsection{Agency as Game-Theoretic Play}
+
+Agents act to maximize local coherence subject to global constraints.  
+We define a ternary payoff functional:
+
+\begin{equation}
+    \Pi(A_i) = \sum_{j} f(e_{ij}, e_{ji})
+\end{equation}
+
+with
+
+\begin{equation}
+    f(e_{ij}, e_{ji}) =
+    \begin{cases}
+        +1 & \text{if phases mutually reinforce} \\
+        0  & \text{if neutral} \\
+        -1 & \text{if opposed}
+    \end{cases}
+\end{equation}
+
+This yields a natural game-theoretic attractor dynamic:
+
+\begin{equation}
+    A_i(t+1) = \arg\max_{A_i'} \Pi(A_i').
+\end{equation}
+
+\subsection{Summary}
+
+Agents in KFT:
+\begin{itemize}
+    \item are oscillatory, ternary computational units,
+    \item make distinctions to shape local structure,
+    \item update via phase-difference interactions,
+    \item can self-reference without collapse,
+    \item form stable patterns via attractor dynamics,
+    \item behave game-theoretically to maximize coherence.
+\end{itemize}
+
