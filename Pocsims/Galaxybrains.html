@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Galaxy Baby — pure KFT emergence</title>
+  <style>body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Kairi Field Theory — 3-way minimal galaxy nursery
+const c = document.getElementById('c');
+const gl = c.getContext('webgl2');
+const W = 384, H = 384;          // small enough for phone, big enough for spirals
+c.width = W; c.height = H;
+
+const N = W * H;
+const state = new Int8Array(N * 4);     // rgba → state(-1,0,1) + age
+const vel   = new Float32Array(N * 3);  // chaos wind xyz
+
+// init primal chaos
+for(let i=0;i<N;i++){
+  state[i*4+0] = Math.random()<0.04 ? (Math.random()<0.5?-1:1) : 0; // 4% seed
+  state[i*4+3] = 0; // age
+}
+
+// simple full-screen quad shader
+const vs = `#version 300 es
+in vec2 p; void main(){gl_Position=vec4(p,0,1);}`;
+const fs = `#version 300 es
+precision highp float;
+uniform sampler2D t;
+out vec4 O;
+void main(){
+  ivec2 i = ivec2(gl_FragCoord.xy);
+  int s = texelFetch(t, i, 0).x > 0.5 ? 1 : texelFetch(t, i, 0).x < -0.5 ? -1 : 0;
+  vec3 col = s==1 ? vec3(0.3,0.7,1.0) : s==-1 ? vec3(1.0,0.4,0.6) : vec3(0.03,0.01,0.05);
+  float age = texelFetch(t, i, 0).a;
+  O = vec4(col * (0.4 + 0.6*age), 1.0);
+}`;
+
+// compile program, textures, etc (omitted for brevity – full code ~120 lines total)
+
+// main ternary update — this is the ENTIRE physics
+function step(){
+  // 1. compute chaos wind (curl of previous state)
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){
+    let i = y*W + x;
+    let sx = state[(i+1)*4] - state[(i-1)*4];
+    let sy = state[(i+W)*4] - state[(i-W)*4];
+    vel[i*3+0] += sy * 0.013;
+    vel[i*3+1] -= sx * 0.013;
+    vel[i*3+2] += (Math.random()-0.5)*0.001;
+  }
+
+  // 2. phase-cube ternary rule (6-face moore + forgive)
+  let next = state.slice();
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){
+    let i = y*W + x;
+    let sum = 0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(dx==0&&dy==0) continue;
+      sum += state[(i + dy*W + dx)*4];
+    }
+    let me = state[i*4];
+    let tension = sum + me*3; // self counts triple in primal Δ
+
+    // ternary forgiveness core
+    if(tension > 4) next[i*4] = 1;       // amplify love
+    else if(tension < -4) next[i*4] = -1; // amplify nibble
+    else next[i*4] = -me;                 // forgive → flip into void or birth
+
+    next[i*4+3] = next[i*4]==0 ? 0 : next[i*4+3]+0.004; // age glowing
+  }
+  state.set(next);
+
+  // apply chaos wind
+  // (ping-pong FBO swap + advection – omitted, only 15 more lines)
+
+  render(); requestAnimationFrame(step);
+}
+
+step();
+</script>
+</body>
+</html>
