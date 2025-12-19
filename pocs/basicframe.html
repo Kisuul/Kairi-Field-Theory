@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TODO: TODO TODO">
+    <meta name="keywords" content="TODO, TODO, TODO">
+    <meta name="author" content="Christopher 'Kisuul' Lohman">
+    
+    <title>TODO</title>
+    
+    <!-- Minimal reset for predictable styling -->
+    <style>
+        /* Narrow, deep, filamentary reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            background: #000;
+            color: #fff;
+        }
+        
+        /* TODO: Main container – wide and shallow enough to hold anything */
+        #app {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+        
+        header, footer {
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        main {
+            overflow: hidden; /* Let children decide scrolling */
+        }
+        
+        /* TODO: Placeholder for canvas or any render target */
+        #render-target {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>TODO</h1>
+            <nav><!-- TODO: navigation links --></nav>
+        </header>
+        
+        <main>
+            <!-- TODO: Primary render surface – replace or extend as needed -->
+            <canvas id="render-target"></canvas>
+            
+            <!-- TODO: Alternative slot for DOM content, SVG, WebGL, etc. -->
+            <div id="dom-target"></div>
+        </main>
+        
+        <footer>
+            <p>TODO – Sign here for Author and Datestamp</p>
+        </footer>
+    </div>
+
+    <!-- TODO: Core modules – load only what you need -->
+    <script type="module">
+        // Entry point – everything is optional and replaceable
+        const app = {
+            canvas: document.getElementById('render-target'),
+            dom: document.getElementById('dom-target'),
+            ctx: null,
+            
+            // TODO: Initialize rendering context (2D, WebGL, etc.)
+            initRenderer(type = '2d') {
+                if (type === '2d' && this.canvas.getContext) {
+                    this.ctx = this.canvas.getContext('2d');
+                }
+                // TODO: extend for 'webgl', 'webgpu', 'three', 'svg', etc.
+            },
+            
+            // TODO: Main update loop – narrow and deep
+            update() {
+                // Replace this entire function without touching anything else
+                requestAnimationFrame(() => this.update());
+            },
+            
+            // TODO: Start everything
+            start() {
+                this.initRenderer('2d');
+                this.update();
+            }
+        };
+        
+        // Launch when ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => app.start());
+        } else {
+            app.start();
+        }
+    </script>
+</body>
+</html>
