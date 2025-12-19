@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ternary AC field with memory, extended locality, hidden parity, and binary collapse interface.">
+<meta name="keywords" content="ternary computation, phasecube, parity, emergence, information theory">
+<meta name="author" content="Christopher 'Kisuul' Lohman">
+
+<title>PhaseCube Field — Memory & Parity</title>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; color: #fff; font-family: system-ui; }
+
+#app {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+header, footer {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+main { position: relative; overflow: hidden; }
+
+#render-target { width: 100%; height: 100%; display: block; }
+
+#overlay {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    font-family: monospace;
+    font-size: 13px;
+    pointer-events: none;
+    opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+<header>
+    <h1>PhaseCube Field — Memory / Parity / Collapse</h1>
+    <div>Click: flip parity · Mouse: inject flux</div>
+</header>
+
+<main>
+    <canvas id="render-target"></canvas>
+    <div id="overlay"></div>
+</main>
+
+<footer>
+    <p>Christopher “Kisuul” Lohman · KFT / PhaseCube</p>
+</footer>
+</div>
+
+<script type="module">
+const app = {
+    canvas: document.getElementById('render-target'),
+    ctx: null,
+    overlay: document.getElementById('overlay'),
+
+    gridW: 120,
+    gridH: 120,
+    field: null,
+    history: null, // Uint8Array per cell, rolling window
+    parity: 0,
+
+    frame: 0,
+    collapseInterval: 240,
+    showCollapse: false,
+
+    mouse: { x: 0, y: 0, active: false },
+
+    initRenderer() {
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        this.canvas.addEventListener('mousemove', e => {
+            const r = this.canvas.getBoundingClientRect();
+            this.mouse.x = ((e.clientX - r.left) / r.width) * this.gridW;
+            this.mouse.y = ((e.clientY - r.top) / r.height) * this.gridH;
+            this.mouse.active = true;
+        });
+        this.canvas.addEventListener('mouseleave', () => this.mouse.active = false);
+        this.canvas.addEventListener('click', () => this.parity ^= 1);
+    },
+
+    resize() {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        this.canvas.width = this.canvas.clientWidth * dpr;
+        this.canvas.height = this.canvas.clientHeight * dpr;
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    },
+
+    initField() {
+        const N = this.gridW * this.gridH;
+        this.field = new Int8Array(N);
+        this.history = Array.from({ length: N }, () => []);
+
+        for (let i = 0; i < N; i++) {
+            if (Math.random() < 0.05) {
+                this.field[i] = Math.random() < 0.5 ? -1 : 1;
+            }
+        }
+    },
+
+    idx(x, y) {
+        return ((y + this.gridH) % this.gridH) * this.gridW +
+               ((x + this.gridW) % this.gridW);
+    },
+
+    updateCell(x, y) {
+        const i = this.idx(x, y);
+        const me = this.field[i];
+
+        let sum = 0;
+        let same = 0;
+
+        for (let oy = -2; oy <= 2; oy++) {
+            for (let ox = -2; ox <= 2; ox++) {
+                if (ox === 0 && oy === 0) continue;
+                const v = this.field[this.idx(x + ox, y + oy)];
+                sum += v;
+                if (v === me) same++;
+            }
+        }
+
+        // record history
+        const h = this.history[i];
+        h.push(me);
+        if (h.length > 5) h.shift();
+
+        const uniformHistory = h.every(v => v === h[0]);
+
+        let next = me;
+
+        if (sum > 4) next = 1;
+        else if (sum < -4) next = -1;
+        else {
+            // ambiguous region
+            next = (this.parity === 1) ? me : -me;
+        }
+
+        // anti-singularity pressure
+        if (same > 18 || uniformHistory) {
+            this.parity ^= 1;
+            next = -me || (this.parity ? 1 : -1);
+        }
+
+        this.field[i] = next;
+    },
+
+    injectFlux() {
+        if (!this.mouse.active) return;
+        const cx = Math.floor(this.mouse.x);
+        const cy = Math.floor(this.mouse.y);
+
+        for (let y = -2; y <= 2; y++) {
+            for (let x = -2; x <= 2; x++) {
+                const i = this.idx(cx + x, cy + y);
+                this.field[i] = this.parity ? 1 : -1;
+            }
+        }
+    },
+
+    step() {
+        for (let i = 0; i < 600; i++) {
+            const x = Math.random() * this.gridW | 0;
+            const y = Math.random() * this.gridH | 0;
+            this.updateCell(x, y);
+        }
+
+        this.injectFlux();
+
+        this.frame++;
+        if (this.frame % this.collapseInterval === 0) {
+            this.showCollapse = !this.showCollapse;
+        }
+    },
+
+    render() {
+        const ctx = this.ctx;
+        const cw = this.canvas.clientWidth / this.gridW;
+        const ch = this.canvas.clientHeight / this.gridH;
+
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let y = 0; y < this.gridH; y++) {
+            for (let x = 0; x < this.gridW; x++) {
+                const v = this.field[this.idx(x, y)];
+                if (v === 0) continue;
+
+                ctx.fillStyle = v > 0 ? '#4aa3ff' : '#ff5577';
+                ctx.fillRect(x * cw, y * ch, cw, ch);
+            }
+        }
+
+        if (this.showCollapse) {
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
+            ctx.globalAlpha = 1;
+        }
+
+        this.overlay.innerHTML =
+            `Parity: ${this.parity}<br>` +
+            `Frame: ${this.frame}<br>` +
+            `Collapse: ${this.showCollapse}`;
+    },
+
+    update() {
+        this.step();
+        this.render();
+        requestAnimationFrame(() => this.update());
+    },
+
+    start() {
+        this.initRenderer();
+        this.initField();
+        this.update();
+    }
+};
+
+document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', () => app.start())
+    : app.start();
+</script>
+</body>
+</html>
